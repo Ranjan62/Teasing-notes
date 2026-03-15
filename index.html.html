@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kuch Kehna Hai... 💌</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red: #e0193a;
+      --red-light: #ff4d6d;
+      --red-pale: #fff0f3;
+      --red-border: #f4b8c4;
+      --white: #ffffff;
+      --text: #2a0a10;
+      --muted: #9b4a5a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--white);
+      font-family: 'Nunito', sans-serif;
+      color: var(--text);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── Hearts Background ── */
+    #hearts-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .heart {
+      position: absolute;
+      bottom: -60px;
+      font-size: 1.2rem;
+      opacity: 0;
+      animation: floatHeart linear infinite;
+    }
+
+    @keyframes floatHeart {
+      0%   { transform: translateY(0) scale(0.8) rotate(-10deg); opacity: 0; }
+      10%  { opacity: 0.6; }
+      80%  { opacity: 0.4; }
+      100% { transform: translateY(-110vh) scale(1.1) rotate(10deg); opacity: 0; }
+    }
+
+    .heart-pulse {
+      display: inline-block;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.35); }
+    }
+
+    /* ── Page Layout ── */
+    #page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px 60px;
+    }
+
+    /* ── Start Button ── */
+    #start-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    #start-wrap.hidden {
+      opacity: 0;
+      transform: scale(0.85);
+      pointer-events: none;
+    }
+
+    .tagline {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
+
+    #start-btn {
+      background: var(--red);
+      color: #fff;
+      border: none;
+      padding: 16px 48px;
+      font-size: 1.25rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 28px rgba(224,25,58,0.38);
+      letter-spacing: 0.04em;
+      transition: transform 0.18s, box-shadow 0.18s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #start-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.18) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    #start-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 36px rgba(224,25,58,0.48); }
+    #start-btn:hover::after { opacity: 1; }
+    #start-btn:active { transform: translateY(0); }
+
+    /* ── Notes Section ── */
+    #notes-section {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      display: none;
+    }
+
+    .section-header {
+      text-align: center;
+      padding-bottom: 8px;
+    }
+
+    .section-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--red);
+      line-height: 1.2;
+    }
+
+    .section-header p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-top: 6px;
+    }
+
+    /* ── Note Card ── */
+    .note-card {
+      background: var(--white);
+      border: 2px solid var(--red-border);
+      border-left: 5px solid var(--red);
+      border-radius: 18px;
+      padding: 28px 28px 24px;
+      box-shadow: 0 4px 24px rgba(224,25,58,0.10), 0 1px 4px rgba(224,25,58,0.06);
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+      position: relative;
+    }
+
+    .note-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .card-number {
+      position: absolute;
+      top: -14px;
+      left: 24px;
+      background: var(--red);
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .note-text {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text);
+      font-weight: 600;
+      padding-bottom: 18px;
+      border-bottom: 1px dashed var(--red-border);
+      margin-bottom: 16px;
+    }
+
+    .note-text em {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      color: var(--red);
+    }
+
+    .answer-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .answer-input {
+      width: 100%;
+      border: 1.5px solid var(--red-border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.97rem;
+      color: var(--text);
+      background: var(--red-pale);
+      outline: none;
+      resize: vertical;
+      min-height: 72px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .answer-input:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(224,25,58,0.12);
+    }
+
+    .send-btn {
+      margin-top: 12px;
+      background: transparent;
+      border: 2px solid var(--red);
+      color: var(--red);
+      padding: 9px 26px;
+      border-radius: 50px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .send-btn:hover { background: var(--red); color: #fff; transform: translateY(-1px); }
+    .send-btn:active { transform: translateY(0); }
+    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .sent-msg {
+      display: none;
+      margin-top: 10px;
+      color: #27ae60;
+      font-size: 0.88rem;
+      font-weight: 700;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sent-msg.show { display: flex; }
+
+    .error-msg {
+      display: none;
+      margin-top: 10px;
+      color: var(--red);
+      font-size: 0.85rem;
+    }
+
+    .error-msg.show { display: block; }
+
+    /* ── Footer ── */
+    .footer-hearts {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-top: 10px;
+      opacity: 0;
+      transition: opacity 0.8s 0.3s;
+    }
+
+    .footer-hearts.visible { opacity: 1; }
+
+    /* ── Mobile ── */
+    @media (max-width: 480px) {
+      .section-header h1 { font-size: 1.5rem; }
+      .note-card { padding: 24px 18px 20px; }
+      .note-text { font-size: 0.98rem; }
+      #start-btn { padding: 14px 36px; font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="hearts-container"></div>
+
+<div id="page">
+
+  <!-- Start Button -->
+  <div id="start-wrap">
+    <p class="tagline">Psst… kuch kehna hai tujhe… <span class="heart-pulse">💌</span></p>
+    <button id="start-btn" onclick="startReveal()">Start 😏</button>
+  </div>
+
+  <!-- Notes Section -->
+  <div id="notes-section">
+    <div class="section-header">
+      <h1>Kuch Dil Ki Baatein <span class="heart-pulse">❤️</span></h1>
+      <p>Padho… aur sach mein jawab dena. No escape. 😌</p>
+    </div>
+
+    <!-- Cards injected by JS -->
+    <div id="cards-wrap"></div>
+
+    <div class="footer-hearts" id="footer-hearts">
+      ❤️ 🌹 ❤️
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── Config ──
+  // Replace with your own Web3Forms access key (free at https://web3forms.com)
+  const WEB3FORMS_KEY = "1a740716-6c58-403c-b606-29db6a3d79f5";
+
+  const notes = [
+    {
+      id: 1,
+      text: "Sach batao… aapke pass dimag bilkul nahi hai na? 🤔",
+      placeholder: "wo to bacpan se nahi hai? 😇"
+    },
+    {
+      id: 2,
+      text: "kya lagta hai iss baar exam mai first aa paogi? 🤔",
+      placeholder: " exam to pass kar lungi... par tumhara jawab dena thoda tough hai 😅"
+    },
+    {
+      id: 3,
+      text: "Main kaam karne baithta hu… aur dimag bolta hai: chal, usse pareshan krte hai. Ye sab aapki galti hai. 📱",
+      placeholder: "Haha sorry nahi bolungi 😂"
+    },
+    {
+      id: 4,
+      text: "Sach sach batao… aapne 1st question ka answer ulta diya? chalo ek baar fisre puchta hu aapke pass dimag bilkul nahi hai na👀",
+      placeholder: "sabke samne sach nahi bolna hai... 🤫🤫"
+    },
+    {
+      id: 5,
+      text: "Conclusion: aapko tang krne mai ek alag hi maza aata hai. 😈",
+      placeholder: ".... 😄"
+    },
+  {
+  id: 6,
+  text: "Ek baat batao… itna attitude free mai milta hai ya subscription hai iska? 💳",
+  placeholder: "VIP membership hai 😌"
+},
+{
+  id: 7,
+  text: "Agar main aapko tang karna band kar du… to aapko thoda miss hoga ya chain milega? 🤔",
+  placeholder: "shayad thoda sa miss ho 😄"
+}
+  ];
+
+  // ── Floating Hearts ──
+  function spawnHeart() {
+    const c = document.getElementById('hearts-container');
+    const h = document.createElement('span');
+    const symbols = ['❤️','🩷','💕','💗','💓'];
+    h.classList.add('heart');
+    h.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    h.style.left = Math.random() * 100 + 'vw';
+    const dur = 6 + Math.random() * 8;
+    h.style.animationDuration = dur + 's';
+    h.style.animationDelay = Math.random() * 4 + 's';
+    h.style.fontSize = (0.8 + Math.random() * 1.2) + 'rem';
+    c.appendChild(h);
+    setTimeout(() => h.remove(), (dur + 4) * 1000);
+  }
+
+  setInterval(spawnHeart, 900);
+  for (let i = 0; i < 8; i++) setTimeout(spawnHeart, i * 300);
+
+  // ── Build Cards ──
+  function buildCards() {
+    const wrap = document.getElementById('cards-wrap');
+    notes.forEach((note, i) => {
+      const card = document.createElement('div');
+      card.className = 'note-card';
+      card.id = 'card-' + note.id;
+      card.innerHTML = `
+        <div class="card-number">${note.id}</div>
+        <p class="note-text">${note.text}</p>
+        <p class="answer-label">✍️ Tumhara Jawab</p>
+        <textarea class="answer-input" id="input-${note.id}" placeholder="${note.placeholder}" rows="3"></textarea>
+        <button class="send-btn" id="btn-${note.id}" onclick="sendAnswer(${note.id})">
+          Send Answer 💌
+        </button>
+        <div class="sent-msg" id="sent-${note.id}">✅ Jawab mil gaya! Shukriya 😊</div>
+        <div class="error-msg" id="err-${note.id}">⚠️ Kuch gadbad hui. Dobara try karo.</div>
+      `;
+      wrap.appendChild(card);
+    });
+  }
+
+  // ── Reveal Sequence ──
+  function startReveal() {
+    const wrap = document.getElementById('start-wrap');
+    wrap.classList.add('hidden');
+
+    setTimeout(() => {
+      wrap.style.display = 'none';
+      const section = document.getElementById('notes-section');
+      section.style.display = 'flex';
+
+      // Stagger card appearances
+      const cards = document.querySelectorAll('.note-card');
+      cards.forEach((card, i) => {
+        setTimeout(() => {
+          card.classList.add('visible');
+          if (i === cards.length - 1) {
+            setTimeout(() => {
+              document.getElementById('footer-hearts').classList.add('visible');
+            }, 500);
+          }
+        }, i * 350 + 100);
+      });
+    }, 750);
+  }
+
+  // ── Send Answer ──
+  async function sendAnswer(noteId) {
+    const input = document.getElementById('input-' + noteId);
+    const btn   = document.getElementById('btn-' + noteId);
+    const sentEl = document.getElementById('sent-' + noteId);
+    const errEl  = document.getElementById('err-' + noteId);
+    const answer = input.value.trim();
+
+    if (!answer) {
+      input.style.borderColor = 'var(--red)';
+      input.focus();
+      setTimeout(() => input.style.borderColor = '', 1500);
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Bhej raha hun... ⏳';
+
+    const noteText = notes.find(n => n.id === noteId)?.text || '';
+
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: `💌 Love Note Reply — Card #${noteId}`,
+          note_number: noteId,
+          note_question: noteText,
+          answer: answer,
+          from_name: 'Love Notes App'
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        sentEl.classList.add('show');
+        btn.style.display = 'none';
+        input.disabled = true;
+        input.style.opacity = '0.6';
+      } else {
+        throw new Error('Failed');
+      }
+    } catch {
+      errEl.classList.add('show');
+      btn.disabled = false;
+      btn.innerHTML = 'Send Answer 💌';
+      setTimeout(() => errEl.classList.remove('show'), 4000);
+    }
+  }
+
+  // ── Init ──
+  buildCards();
+</script>
+</body>
+</html>
